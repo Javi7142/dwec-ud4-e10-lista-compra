@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lista de la compra</title>
+    <link rel="stylesheet" href="estilos.css" />
+    <script type="module" src="src/main.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Lista de la compra</h1>
+      <button id="cambiar-tema">🌙 Oscuro</button>
+    </header>
+    <form id="formulario">
+      <input id="nombre" placeholder="Producto" autocomplete="off" />
+      <input id="cantidad" type="number" min="1" value="1" aria-label="Cantidad" />
+      <button>Añadir</button>
+    </form>
+    <p id="resumen" role="status"></p>
+    <ul id="lista"></ul>
+    <p>
+      <button id="vaciar-comprados">🧹 Quitar los comprados</button>
+      <button id="compartir">🔗 Copiar enlace para compartir</button>
+    </p>
+    <p id="avisos" role="status" aria-live="polite"></p>
+
+    <dialog id="confirmar">
+      <form method="dialog">
+        <p class="pregunta"></p>
+        <button value="no">Cancelar</button>
+        <button value="si">Aceptar</button>
+      </form>
+    </dialog>
+  </body>
+</html>

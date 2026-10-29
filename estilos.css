@@ -1,0 +1,39 @@
+:root {
+  --fondo: #ffffff;
+  --texto: #1b1f3b;
+  --suave: #868e96;
+}
+:root[data-tema='oscuro'] {
+  --fondo: #1b1f3b;
+  --texto: #f1f1f1;
+  --suave: #adb5bd;
+}
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: system-ui, sans-serif;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+#lista {
+  list-style: none;
+  padding: 0;
+}
+#lista li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+.comprado .nombre {
+  text-decoration: line-through;
+  color: var(--suave);
+}
+.cuando {
+  color: var(--suave);
+  font-size: 0.85em;
+}
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
