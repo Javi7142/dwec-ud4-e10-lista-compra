@@ -230,7 +230,7 @@ describe('resumen', () => {
   });
 
   it('usa el plural de artículos y el singular de comprado', () => {
-    expect(resumen([articulo({ comprado: true }), articulo({})])).toBe('3 artículos · 1 comprado');
+    expect(resumen([articulo({ comprado: true }), articulo({})])).toBe('2 artículos · 1 comprado');
   });
 
   it('usa el plural en los dos con varios comprados', () => {
