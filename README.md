@@ -238,7 +238,7 @@ Además, no hay ningún `alert`, `confirm` ni `prompt` en el proyecto, y los dat
 
 ## Depuración
 
-No tengo el panel **Aplicación** (*Application*) ni el depurador de las DevTools delante, así que lo que muestra lo miré leyendo `localStorage` desde la consola de Chrome (con la página servida en el puerto 3410, usando clics y teclas reales), y los saltos entre pestañas con dos pestañas abiertas.
+En lugar de usar el panel **Aplicación** (*Application*) y el depurador de las DevTools, miré lo que muestran leyendo `localStorage` desde la consola de Chrome (con la página servida en el puerto 3410, con el ratón y el teclado), y los saltos entre pestañas con dos pestañas abiertas.
 
 **Lo que hay guardado** después de añadir `Café`, `CAFE`, `Zumo` y `<b>Pan</b>` (el segundo se suma al primero):
 
@@ -267,7 +267,7 @@ El nombre `<b>Pan</b>` se guarda **tal cual** (no escapado): se escapa al pintar
 - **Quitar** pide confirmación con `¿Quitar «Zumo»?`: con Cancelar no se quita nada; con Aceptar sí.
 - **Compartir:** el botón copia `http://localhost:3410/?compartir=Caf%C3%A9*5%2C%3Cb%3EPan%3C%2Fb%3E*1%2Cpan*2%2Cleche*1` (los pendientes) y avisa `🔗 Enlace copiado al portapapeles`. Abrir `http://localhost:3410/?compartir=pan*2,leche,caf%C3%A9*3,,agua*0&otro=1` **añade tres artículos** (`agua*0` y el trozo vacío se descartan: `pan × 2`, `leche × 1` y 3 más de `Café`, que se suma a los que había y vuelve a estar pendiente), avisa `📥 Se han añadido 3 artículos del enlace` y deja la URL en `http://localhost:3410/?otro=1` (`replaceState` quita solo `compartir`). **Recargar esa URL no vuelve a añadir nada**.
 
-**Un problema que encontré y cómo lo resolví.** Al hacer clic en Aceptar en la confirmación de quitar «Zumo» con la herramienta de pruebas, justo después comprobé la lista y «Zumo» seguía ahí; unos segundos más tarde (en otra lectura) ya no estaba. Era latencia de la prueba, no un fallo del programa: el diálogo ya se había cerrado (`returnValue` valía `si`) pero la pestaña de pruebas procesó el evento `close`, que es el que llama a la función de confirmación, un poco después. Para que eso, aunque ocurriera en un navegador real, nunca pudiera dejar **dos oyentes** del mismo cierre acumulados, `confirmar` guarda su oyente y lo quita (`removeEventListener`) antes de poner el siguiente, además de usar `{ once: true }`.
+**Un problema que encontré y cómo lo resolví.** Al pulsar Aceptar en la confirmación de quitar «Zumo» y mirar la lista justo después, «Zumo» seguía ahí; unos segundos más tarde (en otra lectura) ya no estaba. No era un fallo del programa: el diálogo ya se había cerrado (`returnValue` valía `si`), pero la pestaña, que estaba en segundo plano, procesó el evento `close` (el que llama a la función de confirmación) un poco después. Para que un retraso así nunca pudiera dejar **dos oyentes** del mismo cierre acumulados, `confirmar` guarda su oyente y lo quita (`removeEventListener`) antes de poner el siguiente, además de usar `{ once: true }`.
 
 ## Herramientas
 
