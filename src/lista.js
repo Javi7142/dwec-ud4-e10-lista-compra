@@ -14,9 +14,30 @@
  * @property {Date} creado
  */
 
+/** Cantidad máxima de un artículo. */
+const MAXIMO = 99;
+
+/**
+ * Comparador de textos en español que no distingue mayúsculas ni tildes (`Café` = `CAFE`).
+ * `sensitivity: 'base'` solo distingue las letras base, y se usa tanto para comparar como para ordenar.
+ */
+const comparador = new Intl.Collator('es', { sensitivity: 'base' });
+
+/** Reglas de plural del español, para «artículo(s)» y «comprado(s)». */
+const plurales = new Intl.PluralRules('es');
+
+/**
+ * Identificador nuevo para un artículo.
+ *
+ * @returns {string}
+ */
+function nuevoId() {
+  return globalThis.crypto.randomUUID();
+}
+
 /**
  * Añade un artículo. Si ya hay uno con el mismo nombre (sin distinguir mayúsculas ni tildes),
- * suma la cantidad y lo marca como pendiente.
+ * suma la cantidad (hasta 99) y lo marca como pendiente.
  *
  * @param {Articulo[]} articulos
  * @param {string} nombre
@@ -25,9 +46,31 @@
  * @returns {Articulo[]}
  * @throws {Error} Si el nombre está vacío.
  * @throws {RangeError} Si la cantidad no es un entero entre 1 y 99.
+ * @example
+ * anadir([], '  Café ', 2); // [{ id: '…', nombre: 'Café', cantidad: 2, comprado: false, creado: Date }]
  */
 export function anadir(articulos, nombre, cantidad = 1, ahora = new Date()) {
-  // TODO
+  const limpio = nombre.trim();
+  if (limpio === '') {
+    throw new Error('El nombre no puede estar vacío');
+  }
+  if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > MAXIMO) {
+    throw new RangeError(`Cantidad no válida: ${cantidad}`);
+  }
+
+  const existente = articulos.find((articulo) => comparador.compare(articulo.nombre, limpio) === 0);
+  if (existente === undefined) {
+    return [
+      ...articulos,
+      { id: nuevoId(), nombre: limpio, cantidad, comprado: false, creado: ahora },
+    ];
+  }
+  // Ya estaba: se suma (con tope) y vuelve a estar pendiente, en un objeto nuevo
+  return articulos.map((articulo) =>
+    articulo === existente
+      ? { ...articulo, cantidad: Math.min(MAXIMO, articulo.cantidad + cantidad), comprado: false }
+      : articulo,
+  );
 }
 
 /**
@@ -37,7 +80,9 @@ export function anadir(articulos, nombre, cantidad = 1, ahora = new Date()) {
  * @returns {Articulo[]}
  */
 export function alternarComprado(articulos, id) {
-  // TODO
+  return articulos.map((articulo) =>
+    articulo.id === id ? { ...articulo, comprado: !articulo.comprado } : articulo,
+  );
 }
 
 /**
@@ -47,7 +92,7 @@ export function alternarComprado(articulos, id) {
  * @returns {Articulo[]}
  */
 export function quitar(articulos, id) {
-  // TODO
+  return articulos.filter((articulo) => articulo.id !== id);
 }
 
 /**
@@ -56,7 +101,7 @@ export function quitar(articulos, id) {
  * @returns {Articulo[]}
  */
 export function quitarComprados(articulos) {
-  // TODO
+  return articulos.filter((articulo) => !articulo.comprado);
 }
 
 /**
@@ -65,7 +110,10 @@ export function quitarComprados(articulos) {
  * @returns {Articulo[]}
  */
 export function ordenar(articulos) {
-  // TODO
+  // toSorted ordena una copia: la lista recibida no cambia
+  return articulos.toSorted(
+    (a, b) => Number(a.comprado) - Number(b.comprado) || comparador.compare(a.nombre, b.nombre),
+  );
 }
 
 /**
@@ -74,5 +122,11 @@ export function ordenar(articulos) {
  * @returns {string}
  */
 export function resumen(articulos) {
-  // TODO
+  if (articulos.length === 0) {
+    return 'La lista está vacía';
+  }
+  const comprados = articulos.filter((articulo) => articulo.comprado).length;
+  const palabraArticulos = plurales.select(articulos.length) === 'one' ? 'artículo' : 'artículos';
+  const palabraComprados = plurales.select(comprados) === 'one' ? 'comprado' : 'comprados';
+  return `${articulos.length} ${palabraArticulos} · ${comprados} ${palabraComprados}`;
 }
